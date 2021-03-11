@@ -119,7 +119,6 @@ public class Mqtt5ServerEndpointStatusTest extends MqttServerBaseTest {
       async.await();
 
       context.assertTrue(!client.isConnected() && !this.endpoint.isConnected());
-      System.out.println("***** tick2="+ System.currentTimeMillis());
       context.assertNotNull(callback.getDisconnectResponse());
       context.assertEquals(callback.getDisconnectResponse().getReturnCode(), MqttReturnCode.RETURN_CODE_SERVER_SHUTTING_DOWN);
 

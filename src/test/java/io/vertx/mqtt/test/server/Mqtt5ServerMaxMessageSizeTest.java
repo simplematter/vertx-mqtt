@@ -17,6 +17,7 @@
 package io.vertx.mqtt.test.server;
 
 import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.TooLongFrameException;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.ext.unit.Async;
@@ -88,7 +89,8 @@ public class Mqtt5ServerMaxMessageSizeTest extends MqttServerBaseTest {
   protected void endpointHandler(MqttEndpoint endpoint, TestContext context) {
 
     endpoint.exceptionHandler(t -> {
-      if (t instanceof DecoderException) {
+      log.info("***** ex handler: ", t);
+      if (t instanceof TooLongFrameException) {
         this.async.complete();
       }
     });
