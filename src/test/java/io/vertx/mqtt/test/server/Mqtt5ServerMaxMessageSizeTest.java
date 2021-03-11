@@ -18,6 +18,7 @@ package io.vertx.mqtt.test.server;
 
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.TooLongFrameException;
+import io.netty.handler.codec.mqtt.MqttProperties;
 import io.vertx.core.impl.logging.Logger;
 import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.ext.unit.Async;
@@ -25,10 +26,12 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.mqtt.MqttEndpoint;
 import io.vertx.mqtt.MqttServerOptions;
+import io.vertx.mqtt.messages.codes.MqttDisconnectReasonCode;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttClientException;
 import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttException;
+import org.eclipse.paho.mqttv5.common.packet.MqttReturnCode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +45,7 @@ public class Mqtt5ServerMaxMessageSizeTest extends MqttServerBaseTest {
 
   private static final Logger log = LoggerFactory.getLogger(Mqtt5ServerMaxMessageSizeTest.class);
 
-  private Async async;
+//  private Async async;
 
   private static final String MQTT_TOPIC = "/my_topic";
   private static final int MQTT_MAX_MESSAGE_SIZE = 50;
@@ -60,7 +63,7 @@ public class Mqtt5ServerMaxMessageSizeTest extends MqttServerBaseTest {
   @Test
   public void publishBigMessage(TestContext context) {
 
-    this.async = context.async();
+//    this.async = context.async();
 
     try {
 
@@ -72,10 +75,12 @@ public class Mqtt5ServerMaxMessageSizeTest extends MqttServerBaseTest {
 
       // The client seems to fail when sending IO and block forever (see MqttOutputStream)
       // that makes the test hang forever
-      client.setTimeToWait(2000);
+      client.setTimeToWait(1000);
       client.publish(MQTT_TOPIC, message, 0, false);
     } catch (MqttException e) {
-      context.assertEquals((int)MqttClientException.REASON_CODE_INCOMING_PACKET_TOO_LARGE, e.getReasonCode());
+      e.printStackTrace();
+//      context.assertEquals((int)MqttClientException.REASON_CODE_INCOMING_PACKET_TOO_LARGE, e.getReasonCode());
+      context.assertEquals((int) MqttReturnCode.RETURN_CODE_PACKET_TOO_LARGE, e.getReasonCode());
     }
   }
 
@@ -91,7 +96,8 @@ public class Mqtt5ServerMaxMessageSizeTest extends MqttServerBaseTest {
     endpoint.exceptionHandler(t -> {
       log.info("***** ex handler: ", t);
       if (t instanceof TooLongFrameException) {
-        this.async.complete();
+//        this.async.complete();
+        endpoint.disconnect(MqttDisconnectReasonCode.PACKET_TOO_LARGE, MqttProperties.NO_PROPERTIES);
       }
     });
 
