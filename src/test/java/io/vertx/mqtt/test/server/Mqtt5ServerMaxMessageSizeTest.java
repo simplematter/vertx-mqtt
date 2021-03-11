@@ -76,8 +76,10 @@ public class Mqtt5ServerMaxMessageSizeTest extends MqttServerBaseTest {
       // The client seems to fail when sending IO and block forever (see MqttOutputStream)
       // that makes the test hang forever
       client.setTimeToWait(1000);
+      System.out.println("***** tick1="+System.currentTimeMillis());
       client.publish(MQTT_TOPIC, message, 0, false);
     } catch (MqttException e) {
+      System.out.println("***** tick3="+System.currentTimeMillis());
       e.printStackTrace();
 //      context.assertEquals((int)MqttClientException.REASON_CODE_INCOMING_PACKET_TOO_LARGE, e.getReasonCode());
       context.assertEquals((int) MqttReturnCode.RETURN_CODE_PACKET_TOO_LARGE, e.getReasonCode());
@@ -94,6 +96,7 @@ public class Mqtt5ServerMaxMessageSizeTest extends MqttServerBaseTest {
   protected void endpointHandler(MqttEndpoint endpoint, TestContext context) {
 
     endpoint.exceptionHandler(t -> {
+      System.out.println("***** tick2="+System.currentTimeMillis());
       log.info("***** ex handler: ", t);
       if (t instanceof TooLongFrameException) {
 //        this.async.complete();
