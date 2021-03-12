@@ -60,11 +60,11 @@ public class Mqtt5ServerMaxMessageSizeTest extends MqttServerBaseTest {
 
   @Test
   public void publishBigMessage(TestContext context) {
-
     try {
-
       MemoryPersistence persistence = new MemoryPersistence();
       MqttClient client = new MqttClient(String.format("tcp://%s:%d", MQTT_SERVER_HOST, MQTT_SERVER_PORT), "12345", persistence);
+      Mqtt5ProbeCallback probeCallback = new Mqtt5ProbeCallback(context);
+      client.setCallback(probeCallback);
       client.connect();
 
       byte[] message = new byte[MQTT_BIG_MESSAGE_SIZE];
@@ -73,9 +73,9 @@ public class Mqtt5ServerMaxMessageSizeTest extends MqttServerBaseTest {
       // that makes the test hang forever
       client.setTimeToWait(1000);
       client.publish(MQTT_TOPIC, message, 0, false);
+      context.assertEquals((int) MqttReturnCode.RETURN_CODE_PACKET_TOO_LARGE, probeCallback.getDisconnectResponse().getReturnCode());
     } catch (MqttException e) {
-      e.printStackTrace();
-      context.assertEquals((int) MqttReturnCode.RETURN_CODE_PACKET_TOO_LARGE, e.getReasonCode());
+      context.fail(e);
     }
   }
 
