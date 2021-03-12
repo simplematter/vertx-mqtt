@@ -128,7 +128,7 @@ public class Mqtt5ServerPublishTest extends MqttServerBaseTest {
         @Override
         public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
 
-          log.info("Just received message [" + mqttMessage.toString() + "] on topic [" + topic + "] with QoS [" + mqttMessage.getQos() + "]"+ this);
+          log.info("Just received message [" + mqttMessage.toString() + "] on topic [" + topic + "] with QoS [" + mqttMessage.getQos() + "] and properties [" + mqttMessage.getProperties() + "]");
 
           lastMessageProperties.set(mqttMessage.getProperties());
           if (mqttMessage.getQos() == 0)
@@ -138,8 +138,6 @@ public class Mqtt5ServerPublishTest extends MqttServerBaseTest {
       }});
 
       this.async.await();
-
-      context.assertTrue(true);
 
     } catch (MqttException e) {
       context.fail(e);
@@ -176,7 +174,7 @@ public class Mqtt5ServerPublishTest extends MqttServerBaseTest {
       endpoint.publishRelease(messageId);
     }).publishCompletionHandler(messageId -> {
 
-      log.info("Message [" + messageId + "] acknowledged");
+      log.info("Message [" + messageId + "] completed");
       this.async.complete();
     });
 
